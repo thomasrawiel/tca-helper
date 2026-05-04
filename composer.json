@@ -1,0 +1,25 @@
+{
+  "name": "traw/tca-helper",
+  "type": "typo3-cms-extension",
+  "description": "TCA Helper functions: register CTypes, Doktypes & more",
+  "authors": [
+    {
+      "name": "Thomas Rawiel",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "typo3/cms-core": "^12 || ^13"
+  },
+  "license": "GPL-3.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "TRAW\\TcaHelper\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "tca_helper"
+    }
+  }
+}
