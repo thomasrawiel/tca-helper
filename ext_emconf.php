@@ -1,18 +1,16 @@
 <?php
 
 $EM_CONF[$_EXTKEY] = [
-    'title' => 'ViewHelpers Collection',
-    'description' => 'A collection of more or less useful ViewHelpers',
+    'title' => 'TCA Helper',
+    'description' => 'TCA Helper functions: register CTypes, Doktypes & more',
     'state' => 'stable',
     'category' => 'misc',
     'author' => 'Thomas Rawiel',
     'author_email' => 'thomas.rawiel@gmail.com',
-    'version' => '1.18.5',
+    'version' => '1.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '12.4.0-14.4.99',
-            'extbase' => '12.4.0-14.4.99',
-            'fluid_styled_content' => '12.4.0-13.4.99',
+            'typo3' => '13.4.0-14.4.99',
         ],
         'conflicts' => [],
         'suggests' => [],

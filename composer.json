@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "typo3/cms-core": "^12 || ^13"
+    "typo3/cms-core": "^13 || ^14"
   },
   "license": "GPL-3.0-or-later",
   "autoload": {
