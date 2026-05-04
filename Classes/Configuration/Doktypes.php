@@ -27,7 +27,7 @@ class Doktypes
                 ExtensionManagementUtility::addTcaSelectItemGroup('pages', 'doktype', $d->getGroup(), $groupLabel ?? $d->getGroup());
             }
 
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTcaSelectItem(
+            ExtensionManagementUtility::addTcaSelectItem(
                 'pages',
                 'doktype',
                 [
@@ -78,7 +78,6 @@ class Doktypes
         $doktypes = $GLOBALS['TCA']['pages']['tx_tcahelper_doktypes'] ?? null;
         if (!empty($doktypes)) {
             $dokTypeRegistry = GeneralUtility::makeInstance(PageDoktypeRegistry::class);
-            $registerDoktypeInTSConfig = [];
 
             foreach ($doktypes as $doktype) {
                 $d = null;
@@ -92,16 +91,6 @@ class Doktypes
                         'allowedTables' => $d->getAllowedTables() ?? '*',
                     ],
                 );
-
-                if ($d->isRegisterInDragArea()) {
-                    $registerDoktypeInTSConfig[] = $d->getValue();
-                }
-            }
-
-            $doktypesString = implode(',', $registerDoktypeInTSConfig);
-
-            if ($doktypesString !== '' && $doktypesString !== '0') {
-                ExtensionManagementUtility::addUserTSConfig('options.pageTree.doktypesToShowInNewPageDragArea := addToList(' . $doktypesString . ')');
             }
         }
     }

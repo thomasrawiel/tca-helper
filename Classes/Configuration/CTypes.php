@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TRAW\TcaHelper\Configuration;
 
 use TRAW\TcaHelper\Configuration\TCA\CType;
-use TRAW\TcaHelper\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 class CTypes
 {
@@ -42,10 +42,10 @@ class CTypes
     private static function registerSelectItem(CType $cType, ?string $groupLabel): void
     {
         if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$cType->getGroup()])) {
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $cType->getGroup(), $groupLabel ?? $cType->getGroup());
+            ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $cType->getGroup(), $groupLabel ?? $cType->getGroup());
         }
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTcaSelectItem(
+        ExtensionManagementUtility::addTcaSelectItem(
             'tt_content',
             'CType',
             [
@@ -74,7 +74,7 @@ class CTypes
         }
 
         if ($flexform = $cType->getFlexform()) {
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue('', $cType->getFlexform(), $cType->getValue());
+            ExtensionManagementUtility::addPiFlexFormValue('', $cType->getFlexform(), $cType->getValue());
         }
 
         if ($previewRenderer = $cType->getPreviewRenderer()) {
@@ -99,11 +99,11 @@ class CTypes
 
     private static function registerCreationOptionsIfSupported(CType $cType): void
     {
-        if ($cType->getSaveAndClose() && Typo3Version::getTypo3MajorVersion() > 12) {
+        if ($cType->getSaveAndClose()) {
             $GLOBALS['TCA']['tt_content']['types'][$cType->getValue()]['creationOptions']['saveAndClose'] = true;
         }
 
-        if ($cType->getDefaultValues() !== [] && Typo3Version::getTypo3MajorVersion() > 12) {
+        if ($cType->getDefaultValues() !== []) {
             $GLOBALS['TCA']['tt_content']['types'][$cType->getValue()]['creationOptions']['defaultValues'] = $cType->getDefaultValues();
         }
     }

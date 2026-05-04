@@ -7,6 +7,9 @@ declare(strict_types=1);
 
 namespace TRAW\TcaHelper\Configuration;
 
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Schema\Struct\SelectItem;
+
 class TcaOptionsMap
 {
     /**
@@ -21,7 +24,7 @@ class TcaOptionsMap
 
     protected string $field = '';
 
-    public function __construct(private readonly \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool) {}
+    public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     public function addOptions(array &$params): void
     {
@@ -75,7 +78,7 @@ class TcaOptionsMap
         foreach ($this->items as $item) {
             if (is_array($item) && isset($item['value'])) {
                 $existingValues[] = $item['value'];
-            } elseif ($item instanceof \TYPO3\CMS\Core\Schema\Struct\SelectItem) {
+            } elseif ($item instanceof SelectItem) {
                 $existingValues[] = $item->getValue();
             }
         }
@@ -85,7 +88,7 @@ class TcaOptionsMap
             $value = null;
             if (is_array($item) && isset($item['value'])) {
                 $value = $item['value'];
-            } elseif ($item instanceof \TYPO3\CMS\Core\Schema\Struct\SelectItem) {
+            } elseif ($item instanceof SelectItem) {
                 $value = $item->getValue();
             }
 
