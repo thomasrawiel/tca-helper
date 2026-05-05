@@ -97,7 +97,7 @@ class Doktypes
 
     public static function registerDoktypesInDragArea(): ?string
     {
-        $doktypes = $GLOBALS['TCA']['pages']['tx_vhscol_doktypes'] ?? null;
+        $doktypes = $GLOBALS['TCA']['pages']['tx_tcahelper_doktypes'] ?? null;
         if (!empty($doktypes)) {
             $registerDoktypeInTSConfig = [];
             foreach ($doktypes as $doktype) {

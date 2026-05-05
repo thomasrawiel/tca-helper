@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TRAW\TcaHelper\Configuration\TCA;
 
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 

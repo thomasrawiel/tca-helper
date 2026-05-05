@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TRAW\TcaHelper\Service;
 
-use TRAW\TCaHelper\Configuration\TCA\CType;
+use TRAW\TcaHelper\Configuration\TCA\CType;
 
 /**
  * Generates PageTS configuration to register or remove custom content elements
@@ -26,7 +26,7 @@ final class PageTsGenerator
         $headers = [];
 
         if ($cTypes === []) {
-            $cTypes = $GLOBALS['TCA']['tt_content']['tx_vhscol_ctypes'] ?? [];
+            $cTypes = $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'] ?? [];
         }
 
         foreach ($cTypes as $cType) {
