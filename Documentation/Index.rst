@@ -31,12 +31,10 @@ TCA Helper
 
 ----
 
-TCA Helper functions: register CTypes, Doktypes & more
+TCA helper functions intended to simplify the registration of custom Content element types, Page types & more
 
 .. important::
    Documentation is work in progress, if you have any questions consult https://github.com/thomasrawiel/tca-helper/issues
-
-
 
 ----
 
@@ -46,11 +44,11 @@ TCA Helper functions: register CTypes, Doktypes & more
     :maxdepth: 2
     :titlesonly:
 
-    Introduction/Index
+    Introduction
     Installation/Index
-    Configuration/Index
-    ViewHelpers/Index
-    KnownProblems/Index
+    CTypes/Index
+    Doktypes/Index
+    TcaOptions/Index
 
 ..  Meta Menu
 
