@@ -1,0 +1,22 @@
+..  card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
+
+    ..  card:: :ref:`Register Content element types <ctype_register>`
+
+        Learn how to register Content element types
+
+    ..  card:: :ref:`Update Content element types <ctype_update>`
+
+        Learn how to update existing Content element types
+
+    ..  card:: :ref:`Code examples <ctype_examples>`
+
+            Several code examples that should further explain the extension usage
+
+    ..  card:: :ref:`Configuration <ctype_reference>`
+
+            Configuration reference

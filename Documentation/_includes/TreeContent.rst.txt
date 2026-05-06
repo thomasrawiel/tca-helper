@@ -1,0 +1,15 @@
+In your extension place the content element configuration in the following file
+
+..  directory-tree::
+
+    *   :path:`Configuration`
+
+        *   :path:`TCA`
+
+            *   :path:`Overrides`
+
+                * :file:`tt_content.php`
+
+See :ref:`all code examples <ctype_examples>`
+
+`Storing in the Overrides/ folder <https://docs.typo3.org/permalink/t3coreapi:storing-changes-extension-overrides>`_

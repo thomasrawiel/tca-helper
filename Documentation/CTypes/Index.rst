@@ -3,23 +3,14 @@
 ..  _ctypes:
 
 ============
-Content element types
+Content element types (CTypes)
 ============
 
+The extension provides functions to manipulate the TCA of Content element types.
 
 
+.. include:: /_includes/CTypes.rst.txt
 
-----
-
-**Table of Contents:**
-
-.. toctree::
-   :maxdepth: 1
-   :titlesonly:
-
-   Register
-   Reference
-   Examples
 
 
 

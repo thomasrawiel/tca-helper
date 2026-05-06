@@ -15,20 +15,12 @@ TCA helper functions intended to simplify the registration of custom Content ele
 
     - `Create a custom content element type <https://docs.typo3.org/permalink/t3coreapi:adding-your-own-content-elements>`_
     - `Create new Page Type <https://docs.typo3.org/permalink/t3coreapi:page-types-example>`_
+    - `New content element wizard <https://docs.typo3.org/permalink/t3coreapi:content-element-wizard>`_
+    - `itemsProcFunc <https://docs.typo3.org/permalink/t3tca:tca-property-itemsprocfunc>`_
 
-----
 
-**Table of Contents:**
 
-..  toctree::
-    :maxdepth: 2
-    :titlesonly:
-
-    Introduction
-    Installation/Index
-    CTypes/Index
-    Doktypes/Index
-    TcaOptions/Index
+..  include:: /_includes/Content.rst.txt
 
 ..  Meta Menu
 

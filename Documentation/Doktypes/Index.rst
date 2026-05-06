@@ -3,7 +3,7 @@
 ..  _doktypes:
 
 ============
-Page types
+Page types (Doktypes)
 ============
 
 
