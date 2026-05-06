@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace TRAW\TcaHelper\Configuration;
 
 use TRAW\TcaHelper\Configuration\TCA\CType;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CTypes
 {
@@ -26,6 +28,59 @@ class CTypes
 
             self::storeCTypeForLaterUse($cType);
         }
+    }
+
+    public static function getCType(string $cTypeValue): ?CType
+    {
+        $cTypes = $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'];
+
+        if (!isset($cTypes[$cTypeValue])) {
+            return self::fetchCTypeData($cTypeValue);
+        } else {
+            return new CType($cTypes[$cTypeValue]);
+        }
+    }
+
+    private static function fetchCTypeData(string $cTypeValue): ?CType
+    {
+        $cType = [];
+
+        foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $key => $item) {
+            if (($item['value'] ?? null) === $cTypeValue) {
+                $cType = new CType($item)
+                    ->setFlexform(
+                        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds']['*,' . $cTypeValue] //TYPO3 13
+                        ?? $GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides']['pi_flexform']['config']['ds'] //TYPO3 14
+                        ?? null
+                    )
+                    ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showItem'] ?? null)
+                    ->setColumnsOverrides($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides'] ?? null)
+                    ->setPreviewRenderer($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['previewRenderer'] ?? null)
+                    ->setDefaultValues($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['defaultvalues'] ?? [])
+                    ->setSaveAndClose((bool)($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['saveAndClose'] ?? false));
+                return $cType;
+            }
+        }
+
+        return null;
+    }
+
+    public static function updateCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
+    {
+        foreach ($cTypes as $cType) {
+            self::updateCType($cType, $selectItemGroupLabel);
+        }
+    }
+
+    public static function updateCType(CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        self::validateCType($cType);
+        self::updateSelectItem($cType, $selectItemGroupLabel);
+        self::registerTcaTypeConfiguration($cType);
+        self::registerIconIfAvailable($cType);
+        self::registerCreationOptionsIfSupported($cType);
+
+        self::storeCTypeForLaterUse($cType);
     }
 
     private static function validateCType(CType $cType): void
@@ -58,6 +113,31 @@ class CTypes
             $cType->getRelativeToField(),
             $cType->getRelativePosition()
         );
+    }
+
+    private static function updateSelectItem(CType $cType, ?string $groupLabel): void
+    {
+        if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$cType->getGroup()])) {
+            ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $cType->getGroup(), $groupLabel ?? $cType->getGroup());
+        }
+
+        $found = false;
+        foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $key => $item) {
+            if (($item['value'] ?? null) === $cType->getValue()) {
+                $found = true;
+                $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][$key] = [
+                    'label' => $cType->getLabel(),
+                    'description' => $cType->getDescription(),
+                    'value' => $cType->getValue(),
+                    'icon' => $cType->getIconIdentifier(),
+                    'group' => $cType->getGroup(),
+                ];
+            }
+        }
+
+        if (!$found) {
+            self::registerSelectItem($cType, $groupLabel);
+        }
     }
 
     private static function registerTcaTypeConfiguration(CType $cType): void

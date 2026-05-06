@@ -174,4 +174,96 @@ final class CType
             'saveAndClose' => $this->saveAndClose,
         ];
     }
+
+    public function setLabel(string $label): self
+    {
+        $this->label = $label;
+        return $this;
+    }
+
+    public function setWizardLabel(string $wizardLabel): self
+    {
+        $this->wizardLabel = $wizardLabel;
+        return $this;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function setValue(string $value): self
+    {
+        $this->value = $value;
+        return $this;
+    }
+
+    public function setIconIdentifier(?string $iconIdentifier): self
+    {
+        $this->iconIdentifier = $iconIdentifier;
+        return $this;
+    }
+
+    public function setGroup(?string $group): self
+    {
+        $this->group = $group;
+        return $this;
+    }
+
+    public function setShowitem(?string $showitem): self
+    {
+        $this->showitem = $showitem;
+        return $this;
+    }
+
+    public function setFlexform(?string $flexform): self
+    {
+        $this->flexform = $flexform;
+        return $this;
+    }
+
+    public function setColumnsOverrides(?array $columnsOverrides): self
+    {
+        $this->columnsOverrides = $columnsOverrides;
+        return $this;
+    }
+
+    public function setRelativeToField(?string $relativeToField): self
+    {
+        $this->relativeToField = $relativeToField;
+        return $this;
+    }
+
+    public function setRelativePosition(?string $relativePosition): self
+    {
+        $this->relativePosition = $relativePosition;
+        return $this;
+    }
+
+    public function setPreviewRenderer(?string $previewRenderer): self
+    {
+        $this->previewRenderer = $previewRenderer;
+        return $this;
+    }
+
+    public function setRegisterInNewContentElementWizard(bool $registerInNewContentElementWizard): self
+    {
+        $this->registerInNewContentElementWizard = $registerInNewContentElementWizard;
+        return $this;
+    }
+
+    public function setDefaultValues(array $defaultValues): self
+    {
+        $this->defaultValues = $defaultValues;
+        return $this;
+    }
+
+    public function setSaveAndClose(bool $saveAndClose): self
+    {
+        $this->saveAndClose = $saveAndClose;
+        return $this;
+    }
+    
+    
 }
