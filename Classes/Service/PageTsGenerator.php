@@ -55,6 +55,16 @@ final class PageTsGenerator
                     $headers[$group] = $group; // Fallback: use group key as label
                 }
             }
+
+            if($cType->getRegisterInNewContentElementWizard() && $cType->getLabel() !== $cType->getWizardLabel()) {
+                $wizardItems[$group][] = self::renderWizardConfig(
+                    $cType->getValue(),
+                    $cType->getWizardLabel(),
+                    $cType->getDescription(),
+                    $cType->getIconIdentifier(),
+                    $cType->getDefaultValues(),
+                );
+            }
         }
 
         return self::renderPageTs($wizardItems, $removeItems, $headers);
