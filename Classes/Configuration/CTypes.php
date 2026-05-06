@@ -95,11 +95,11 @@ class CTypes
 
         $allCTypes = array_column($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'], 'value');
         if (!$update && in_array(trim($cType->getValue()), $allCTypes)) {
-            throw new \InvalidArgumentException('CType already exists', 9021369367);
+            throw new \InvalidArgumentException('CType ['.$cType->getValue().'] already exists', 9021369367);
         }
 
         if ($update && !in_array(trim($cType->getValue()), $allCTypes)) {
-            throw new \InvalidArgumentException('CType does not exist', 9021369367);
+            throw new \InvalidArgumentException('CType ['.$cType->getValue().'] does not exist', 9021369367);
         }
     }
 
@@ -144,8 +144,11 @@ class CTypes
             }
         }
 
-        if (!$found) {
-            self::registerSelectItem($cType, $groupLabel);
+        if(!$found) {
+            throw new \InvalidArgumentException(
+                'CType [' . $cType->getValue() . '] cannot be updated because it does not exist',
+                9021369367
+            );
         }
     }
 

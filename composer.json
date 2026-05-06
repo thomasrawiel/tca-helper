@@ -20,7 +20,7 @@
   "extra": {
     "typo3/cms": {
       "extension-key": "tca_helper",
-      "version": "1.1.1-stable",
+      "version": "1.1.2-stable",
       "Package": {
         "providesPackages": {}
       }
