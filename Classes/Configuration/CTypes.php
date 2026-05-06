@@ -30,21 +30,28 @@ class CTypes
         }
     }
 
-    public static function getCType(string $cTypeValue): ?CType
+    public static function getCType(string $cTypeValue): CType
     {
-        $cTypes = $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'];
+        $cTypes = $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'] ?? [];
 
-        if (!isset($cTypes[$cTypeValue])) {
-            return self::fetchCTypeData($cTypeValue);
-        } else {
+        if (isset($cTypes[$cTypeValue])) {
             return new CType($cTypes[$cTypeValue]);
         }
+
+        $cType = self::fetchCTypeData($cTypeValue);
+
+        if ($cType === null) {
+            throw new \InvalidArgumentException(
+                'CType [' . $cTypeValue . '] does not exist',
+                9021369368
+            );
+        }
+
+        return $cType;
     }
 
     private static function fetchCTypeData(string $cTypeValue): ?CType
     {
-        $cType = [];
-
         foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $key => $item) {
             if (($item['value'] ?? null) === $cTypeValue) {
                 $cType = new CType($item)
@@ -56,7 +63,7 @@ class CTypes
                     ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showItem'] ?? null)
                     ->setColumnsOverrides($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides'] ?? null)
                     ->setPreviewRenderer($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['previewRenderer'] ?? null)
-                    ->setDefaultValues($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['defaultvalues'] ?? [])
+                    ->setDefaultValues($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['defaultValues'] ?? [])
                     ->setSaveAndClose((bool)($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['saveAndClose'] ?? false));
                 return $cType;
             }
@@ -95,11 +102,11 @@ class CTypes
 
         $allCTypes = array_column($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'], 'value');
         if (!$update && in_array(trim($cType->getValue()), $allCTypes)) {
-            throw new \InvalidArgumentException('CType ['.$cType->getValue().'] already exists', 9021369367);
+            throw new \InvalidArgumentException('CType [' . $cType->getValue() . '] already exists', 9021369367);
         }
 
         if ($update && !in_array(trim($cType->getValue()), $allCTypes)) {
-            throw new \InvalidArgumentException('CType ['.$cType->getValue().'] does not exist', 9021369367);
+            throw new \InvalidArgumentException('CType [' . $cType->getValue() . '] does not exist', 9021369367);
         }
     }
 
@@ -144,7 +151,7 @@ class CTypes
             }
         }
 
-        if(!$found) {
+        if (!$found) {
             throw new \InvalidArgumentException(
                 'CType [' . $cType->getValue() . '] cannot be updated because it does not exist',
                 9021369367
