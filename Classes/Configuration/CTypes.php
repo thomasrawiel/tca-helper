@@ -74,7 +74,7 @@ class CTypes
 
     public static function updateCType(CType $cType, ?string $selectItemGroupLabel = null): void
     {
-        self::validateCType($cType);
+        self::validateCType($cType, true);
         self::updateSelectItem($cType, $selectItemGroupLabel);
         self::registerTcaTypeConfiguration($cType);
         self::registerIconIfAvailable($cType);
@@ -83,7 +83,7 @@ class CTypes
         self::storeCTypeForLaterUse($cType);
     }
 
-    private static function validateCType(CType $cType): void
+    private static function validateCType(CType $cType, bool $update = false): void
     {
         if (trim($cType->getValue()) === '') {
             throw new \InvalidArgumentException('CType value must not be empty', 9856944126);
@@ -91,6 +91,15 @@ class CTypes
 
         if (trim($cType->getLabel()) === '') {
             throw new \InvalidArgumentException('CType label must not be empty', 9021369363);
+        }
+
+        $allCTypes = array_column($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'], 'value');
+        if (!$update && in_array(trim($cType->getValue()), $allCTypes)) {
+            throw new \InvalidArgumentException('CType already exists', 9021369367);
+        }
+
+        if ($update && !in_array(trim($cType->getValue()), $allCTypes)) {
+            throw new \InvalidArgumentException('CType does not exist', 9021369367);
         }
     }
 
