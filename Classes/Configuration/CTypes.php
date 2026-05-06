@@ -74,7 +74,16 @@ class CTypes
         }
 
         if ($flexform = $cType->getFlexform()) {
-            ExtensionManagementUtility::addPiFlexFormValue('', $cType->getFlexform(), $cType->getValue());
+            if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() > 13) {
+                $typeConfig['columnsOverrides'] ??= [];
+                $typeConfig['columnsOverrides']['pi_flexform'] = [
+                    'config' => [
+                        'ds' => $flexform,
+                    ],
+                ];
+            } else {
+                ExtensionManagementUtility::addPiFlexFormValue('', $flexform, $cType->getValue());
+            }
         }
 
         if ($previewRenderer = $cType->getPreviewRenderer()) {
