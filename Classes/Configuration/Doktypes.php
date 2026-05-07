@@ -54,13 +54,13 @@ class Doktypes
                 $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'][$d->getValue() . '-root'] = $d->getIconIdentifierRoot();
             }
 
-            $showitem = $d->getShowItem() ?? $GLOBALS['TCA']['pages']['types'][(string)$d->getItemType()]['showitem'] ?? '';
+            $showItem = $d->getShowItem() ?? $GLOBALS['TCA']['pages']['types'][(string)$d->getItemType()]['showitem'] ?? '';
 
             if (!in_array($d->getAdditionalShowitem(), [null, '', '0'], true)) {
-                $showitem = $showitem . (str_starts_with($d->getAdditionalShowitem(), ',') ? '' : ',') . $d->getAdditionalShowitem();
+                $showItem = $showItem . (str_starts_with($d->getAdditionalShowitem(), ',') ? '' : ',') . $d->getAdditionalShowitem();
             }
 
-            $GLOBALS['TCA']['pages']['types'][(string)$d->getValue()]['showitem'] = $showitem;
+            $GLOBALS['TCA']['pages']['types'][(string)$d->getValue()]['showitem'] = $showItem;
 
             if (!in_array($d->getColumnsOverrides(), [null, []], true)) {
                 $GLOBALS['TCA']['pages']['types'][(string)$d->getValue()]['columnsOverrides'] = $d->getColumnsOverrides();

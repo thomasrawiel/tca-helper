@@ -60,7 +60,7 @@ class CTypes
                         ?? $GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides']['pi_flexform']['config']['ds'] //TYPO3 14
                         ?? null
                     )
-                    ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showItem'] ?? null)
+                    ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showitem'] ?? null)
                     ->setColumnsOverrides($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides'] ?? null)
                     ->setPreviewRenderer($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['previewRenderer'] ?? null)
                     ->setDefaultValues($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['defaultValues'] ?? [])
