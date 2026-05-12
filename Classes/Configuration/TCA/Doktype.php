@@ -59,7 +59,7 @@ final class Doktype
         $this->group = $doktypeConfiguration['group'] ?? 'default';
         $this->itemType = (string)($doktypeConfiguration['itemType'] ?? PageRepository::DOKTYPE_DEFAULT);
         $this->columnsOverrides = $doktypeConfiguration['columnsOverrides'] ?? null;
-        $this->showItem = $doktypeConfiguration['showItem'] ?? null;
+        $this->showItem = $doktypeConfiguration['showitem'] ?? null;
         $this->additionalShowItem = $doktypeConfiguration['additionalShowItem'] ?? null;
         $this->registerInDragArea = $doktypeConfiguration['registerInDragArea'] ?? true;
         $this->allowedTables = $doktypeConfiguration['allowedTables'] ?? '*';

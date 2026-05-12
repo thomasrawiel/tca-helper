@@ -11,7 +11,28 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CTypes
 {
-    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
+    public static function register(array|CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        $cType = is_array($cType) ? new CType($cType) : $cType;
+
+        self::validateCType($cType);
+        self::registerSelectItem($cType, $selectItemGroupLabel);
+        self::registerTcaTypeConfiguration($cType);
+        self::registerIconIfAvailable($cType);
+        self::registerCreationOptionsIfSupported($cType);
+
+        self::storeCTypeForLaterUse($cType);
+    }
+
+    /**
+     * alias
+     */
+    public static function registerCType(array|CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        self::register($cType, $selectItemGroupLabel);
+    }
+
+    public static function registerMultiple(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
         foreach ($cTypes as $cType) {
             if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
@@ -20,13 +41,40 @@ class CTypes
                 throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
             }
 
-            self::validateCType($cType);
-            self::registerSelectItem($cType, $selectItemGroupLabel);
-            self::registerTcaTypeConfiguration($cType);
-            self::registerIconIfAvailable($cType);
-            self::registerCreationOptionsIfSupported($cType);
+            self::register($cType, $selectItemGroupLabel);
+        }
+    }
 
-            self::storeCTypeForLaterUse($cType);
+    /**
+     * alias
+     */
+    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void {
+        self::registerCTypes($cTypes, $selectItemGroupLabel);
+    }
+
+    public static function update(CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        self::validateCType($cType, true);
+        self::updateSelectItem($cType, $selectItemGroupLabel);
+        self::registerTcaTypeConfiguration($cType);
+        self::registerIconIfAvailable($cType);
+        self::registerCreationOptionsIfSupported($cType);
+
+        self::storeCTypeForLaterUse($cType);
+    }
+
+    /**
+     * alias
+     */
+    public static function updateCType(CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        self::update($cType, $selectItemGroupLabel);
+    }
+
+    public static function updateCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
+    {
+        foreach ($cTypes as $cType) {
+            self::update($cType, $selectItemGroupLabel);
         }
     }
 
@@ -60,10 +108,10 @@ class CTypes
                         ?? $GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides']['pi_flexform']['config']['ds'] //TYPO3 14
                         ?? null
                     )
-                    ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showItem'] ?? null)
+                    ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showitem'] ?? null)
                     ->setColumnsOverrides($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides'] ?? null)
                     ->setPreviewRenderer($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['previewRenderer'] ?? null)
-                    ->setDefaultValues($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['defaultValues'] ?? [])
+                    ->setDefaultValues($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['defaultValues'] ?? null)
                     ->setSaveAndClose((bool)($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['saveAndClose'] ?? false));
                 return $cType;
             }
@@ -72,23 +120,6 @@ class CTypes
         return null;
     }
 
-    public static function updateCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
-    {
-        foreach ($cTypes as $cType) {
-            self::updateCType($cType, $selectItemGroupLabel);
-        }
-    }
-
-    public static function updateCType(CType $cType, ?string $selectItemGroupLabel = null): void
-    {
-        self::validateCType($cType, true);
-        self::updateSelectItem($cType, $selectItemGroupLabel);
-        self::registerTcaTypeConfiguration($cType);
-        self::registerIconIfAvailable($cType);
-        self::registerCreationOptionsIfSupported($cType);
-
-        self::storeCTypeForLaterUse($cType);
-    }
 
     private static function validateCType(CType $cType, bool $update = false): void
     {
@@ -211,7 +242,7 @@ class CTypes
             $GLOBALS['TCA']['tt_content']['types'][$cType->getValue()]['creationOptions']['saveAndClose'] = true;
         }
 
-        if ($cType->getDefaultValues() !== []) {
+        if (!empty($cType->getDefaultValues())) {
             $GLOBALS['TCA']['tt_content']['types'][$cType->getValue()]['creationOptions']['defaultValues'] = $cType->getDefaultValues();
         }
     }

@@ -37,7 +37,7 @@ final class CType
 
     protected bool $registerInNewContentElementWizard;
 
-    protected array $defaultValues;
+    protected ?array $defaultValues;
 
     protected bool $saveAndClose;
 
@@ -65,7 +65,7 @@ final class CType
         $this->relativePosition = $cTypeConfiguration['relativePosition'] ?? null;
         $this->previewRenderer = $cTypeConfiguration['previewRenderer'] ?? null;
         $this->registerInNewContentElementWizard = (bool)($cTypeConfiguration['registerInNewContentElementWizard'] ?? true);
-        $this->defaultValues = $cTypeConfiguration['defaultValues'] ?? [];
+        $this->defaultValues = $cTypeConfiguration['defaultValues'] ?? null;
         $this->saveAndClose = (bool)($cTypeConfiguration['saveAndClose'] ?? false);
     }
 
@@ -144,7 +144,7 @@ final class CType
         return $this->registerInNewContentElementWizard;
     }
 
-    public function getDefaultValues(): array
+    public function getDefaultValues(): ?array
     {
         return $this->defaultValues;
     }
@@ -225,7 +225,11 @@ final class CType
 
     public function setColumnsOverrides(?array $columnsOverrides): self
     {
-        $this->columnsOverrides = $columnsOverrides;
+        if ($this->columnsOverrides === null) {
+            $this->columnsOverrides = $columnsOverrides;
+        } else {
+            $this->columnsOverrides = array_replace_recursive($this->columnsOverrides, $columnsOverrides);
+        }
         return $this;
     }
 
@@ -253,9 +257,13 @@ final class CType
         return $this;
     }
 
-    public function setDefaultValues(array $defaultValues): self
+    public function setDefaultValues(?array $defaultValues): self
     {
-        $this->defaultValues = $defaultValues;
+        if ($this->defaultValues === null) {
+            $this->defaultValues = $defaultValues;
+        } else {
+            $this->defaultValues = array_replace_recursive($this->defaultValues, $defaultValues);
+        }
         return $this;
     }
 
@@ -264,6 +272,4 @@ final class CType
         $this->saveAndClose = $saveAndClose;
         return $this;
     }
-    
-    
 }
