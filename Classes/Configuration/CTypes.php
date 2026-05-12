@@ -11,7 +11,28 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CTypes
 {
-    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
+    public static function register(array|CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        $cType = is_array($cType) ? new CType($cType) : $cType;
+
+        self::validateCType($cType);
+        self::registerSelectItem($cType, $selectItemGroupLabel);
+        self::registerTcaTypeConfiguration($cType);
+        self::registerIconIfAvailable($cType);
+        self::registerCreationOptionsIfSupported($cType);
+
+        self::storeCTypeForLaterUse($cType);
+    }
+
+    /**
+     * alias
+     */
+    public static function registerCType(array|CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        self::register($cType, $selectItemGroupLabel);
+    }
+
+    public static function registerMultiple(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
         foreach ($cTypes as $cType) {
             if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
@@ -20,13 +41,40 @@ class CTypes
                 throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
             }
 
-            self::validateCType($cType);
-            self::registerSelectItem($cType, $selectItemGroupLabel);
-            self::registerTcaTypeConfiguration($cType);
-            self::registerIconIfAvailable($cType);
-            self::registerCreationOptionsIfSupported($cType);
+            self::register($cType, $selectItemGroupLabel);
+        }
+    }
 
-            self::storeCTypeForLaterUse($cType);
+    /**
+     * alias
+     */
+    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void {
+        self::registerCTypes($cTypes, $selectItemGroupLabel);
+    }
+
+    public static function update(CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        self::validateCType($cType, true);
+        self::updateSelectItem($cType, $selectItemGroupLabel);
+        self::registerTcaTypeConfiguration($cType);
+        self::registerIconIfAvailable($cType);
+        self::registerCreationOptionsIfSupported($cType);
+
+        self::storeCTypeForLaterUse($cType);
+    }
+
+    /**
+     * alias
+     */
+    public static function updateCType(CType $cType, ?string $selectItemGroupLabel = null): void
+    {
+        self::update($cType, $selectItemGroupLabel);
+    }
+
+    public static function updateCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
+    {
+        foreach ($cTypes as $cType) {
+            self::update($cType, $selectItemGroupLabel);
         }
     }
 
@@ -72,23 +120,6 @@ class CTypes
         return null;
     }
 
-    public static function updateCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
-    {
-        foreach ($cTypes as $cType) {
-            self::updateCType($cType, $selectItemGroupLabel);
-        }
-    }
-
-    public static function updateCType(CType $cType, ?string $selectItemGroupLabel = null): void
-    {
-        self::validateCType($cType, true);
-        self::updateSelectItem($cType, $selectItemGroupLabel);
-        self::registerTcaTypeConfiguration($cType);
-        self::registerIconIfAvailable($cType);
-        self::registerCreationOptionsIfSupported($cType);
-
-        self::storeCTypeForLaterUse($cType);
-    }
 
     private static function validateCType(CType $cType, bool $update = false): void
     {
