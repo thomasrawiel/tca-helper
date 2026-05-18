@@ -48,7 +48,8 @@ class CTypes
     /**
      * alias
      */
-    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void {
+    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
+    {
         self::registerCTypes($cTypes, $selectItemGroupLabel);
     }
 
@@ -102,12 +103,12 @@ class CTypes
     {
         foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $key => $item) {
             if (($item['value'] ?? null) === $cTypeValue) {
-                $cType = new CType($item)
-                    ->setFlexform(
-                        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds']['*,' . $cTypeValue] //TYPO3 13
-                        ?? $GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides']['pi_flexform']['config']['ds'] //TYPO3 14
-                        ?? null
-                    )
+                $cType = new CType($item);
+                $cType->setFlexform(
+                    $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds']['*,' . $cTypeValue] //TYPO3 13
+                    ?? $GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides']['pi_flexform']['config']['ds'] //TYPO3 14
+                    ?? null
+                )
                     ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showitem'] ?? null)
                     ->setColumnsOverrides($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides'] ?? null)
                     ->setPreviewRenderer($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['previewRenderer'] ?? null)
