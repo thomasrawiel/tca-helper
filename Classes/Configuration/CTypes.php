@@ -50,7 +50,9 @@ class CTypes
      */
     public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
-        self::registerCTypes($cTypes, $selectItemGroupLabel);
+        foreach($cTypes as $cType) {
+            self::register($cType, $selectItemGroupLabel);
+        }
     }
 
     public static function update(CType $cType, ?string $selectItemGroupLabel = null): void
