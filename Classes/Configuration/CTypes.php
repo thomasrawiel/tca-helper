@@ -13,7 +13,11 @@ class CTypes
 {
     public static function register(array|CType $cType, ?string $selectItemGroupLabel = null): void
     {
-        $cType = is_array($cType) ? new CType($cType) : $cType;
+        if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
+            $cType = is_array($cType) ? new CType($cType) : $cType;
+        } else {
+            throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
+        }
 
         self::validateCType($cType);
         self::registerSelectItem($cType, $selectItemGroupLabel);
@@ -35,12 +39,6 @@ class CTypes
     public static function registerMultiple(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
         foreach ($cTypes as $cType) {
-            if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
-                $cType = is_array($cType) ? new CType($cType) : $cType;
-            } else {
-                throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
-            }
-
             self::register($cType, $selectItemGroupLabel);
         }
     }
