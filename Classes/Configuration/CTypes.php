@@ -13,7 +13,11 @@ class CTypes
 {
     public static function register(array|CType $cType, ?string $selectItemGroupLabel = null): void
     {
-        $cType = is_array($cType) ? new CType($cType) : $cType;
+        if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
+            $cType = is_array($cType) ? new CType($cType) : $cType;
+        } else {
+            throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
+        }
 
         self::validateCType($cType);
         self::registerSelectItem($cType, $selectItemGroupLabel);
@@ -35,12 +39,6 @@ class CTypes
     public static function registerMultiple(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
         foreach ($cTypes as $cType) {
-            if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
-                $cType = is_array($cType) ? new CType($cType) : $cType;
-            } else {
-                throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
-            }
-
             self::register($cType, $selectItemGroupLabel);
         }
     }
@@ -48,8 +46,11 @@ class CTypes
     /**
      * alias
      */
-    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void {
-        self::registerCTypes($cTypes, $selectItemGroupLabel);
+    public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
+    {
+        foreach($cTypes as $cType) {
+            self::register($cType, $selectItemGroupLabel);
+        }
     }
 
     public static function update(CType $cType, ?string $selectItemGroupLabel = null): void
@@ -102,12 +103,12 @@ class CTypes
     {
         foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $key => $item) {
             if (($item['value'] ?? null) === $cTypeValue) {
-                $cType = new CType($item)
-                    ->setFlexform(
-                        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds']['*,' . $cTypeValue] //TYPO3 13
-                        ?? $GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides']['pi_flexform']['config']['ds'] //TYPO3 14
-                        ?? null
-                    )
+                $cType = new CType($item);
+                $cType->setFlexform(
+                    $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds']['*,' . $cTypeValue] //TYPO3 13
+                    ?? $GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides']['pi_flexform']['config']['ds'] //TYPO3 14
+                    ?? null
+                )
                     ->setShowitem($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['showitem'] ?? null)
                     ->setColumnsOverrides($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides'] ?? null)
                     ->setPreviewRenderer($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['previewRenderer'] ?? null)
