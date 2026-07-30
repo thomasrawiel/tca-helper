@@ -1,7 +1,7 @@
 {
   "name": "traw/tca-helper",
   "type": "typo3-cms-extension",
-  "description": "TCA Helper functions: register CTypes, Doktypes & more",
+  "description": "TCA Helper - TCA Helper functions: register CTypes, Doktypes & more",
   "authors": [
     {
       "name": "Thomas Rawiel",
@@ -20,7 +20,7 @@
   "extra": {
     "typo3/cms": {
       "extension-key": "tca_helper",
-      "version": "1.1.10-stable",
+      "version": "1.1.11-stable",
       "Package": {
         "providesPackages": {}
       }
