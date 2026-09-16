@@ -35,8 +35,6 @@ final class Doktype
 
     protected ?string $additionalShowItem;
 
-    protected bool $registerInDragArea;
-
     protected ?string $allowedTables;
 
     /**
@@ -61,7 +59,6 @@ final class Doktype
         $this->columnsOverrides = $doktypeConfiguration['columnsOverrides'] ?? null;
         $this->showItem = $doktypeConfiguration['showitem'] ?? null;
         $this->additionalShowItem = $doktypeConfiguration['additionalShowItem'] ?? null;
-        $this->registerInDragArea = $doktypeConfiguration['registerInDragArea'] ?? true;
         $this->allowedTables = $doktypeConfiguration['allowedTables'] ?? '*';
     }
 
@@ -132,11 +129,6 @@ final class Doktype
     public function getAdditionalShowItem(): ?string
     {
         return $this->additionalShowItem;
-    }
-
-    public function isRegisterInDragArea(): bool
-    {
-        return $this->registerInDragArea;
     }
 
     public function getAllowedTables(): ?string

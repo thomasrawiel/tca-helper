@@ -95,28 +95,4 @@ class Doktypes
         }
     }
 
-    public static function registerDoktypesInDragArea(): ?string
-    {
-        $doktypes = $GLOBALS['TCA']['pages']['tx_tcahelper_doktypes'] ?? null;
-        if (!empty($doktypes)) {
-            $registerDoktypeInTSConfig = [];
-            foreach ($doktypes as $doktype) {
-                $d = null;
-                if ($doktype instanceof Doktype || (is_array($doktype) && $doktype !== [])) {
-                    $d = is_array($doktype) ? new Doktype($doktype) : $doktype;
-
-                    if ($d->isRegisterInDragArea() && !is_null($d->getIconIdentifier())) {
-                        $registerDoktypeInTSConfig[] = $d->getValue();
-                    }
-                }
-            }
-
-            if (!empty($registerDoktypeInTSConfig)) {
-                $doktypesString = implode(',', $registerDoktypeInTSConfig);
-                return 'options.pageTree.doktypesToShowInNewPageDragArea := addToList(' . $doktypesString . ')';
-            }
-        }
-
-        return null;
-    }
 }
