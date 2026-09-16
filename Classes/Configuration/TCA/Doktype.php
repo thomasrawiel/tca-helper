@@ -13,29 +13,27 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  */
 final class Doktype
 {
-    protected ?string $label;
+    private ?string $label;
 
-    protected int|string|null $value;
+    private int|string|null $value;
 
-    protected ?string $iconIdentifier;
+    private ?string $iconIdentifier;
 
-    protected ?string $iconIdentifierHide;
+    private ?string $iconIdentifierHide;
 
-    protected ?string $iconIdentifierRoot;
+    private ?string $iconIdentifierRoot;
 
-    protected ?string $iconIdentifierContentFromPid;
+    private ?string $iconIdentifierContentFromPid;
 
-    protected string $group;
+    private string $group;
 
-    protected ?string $itemType;
+    private ?array $columnsOverrides;
 
-    protected ?array $columnsOverrides;
+    private ?string $showItem;
 
-    protected ?string $showItem;
+    private ?string $additionalShowItem;
 
-    protected ?string $additionalShowItem;
-
-    protected ?string $allowedTables;
+    private array $allowedRecordTypes;
 
     /**
      * @param array<string, mixed> $doktypeConfiguration
@@ -55,11 +53,11 @@ final class Doktype
         $this->iconIdentifierContentFromPid = $doktypeConfiguration['icon-contentFromPid'] ?? null;
 
         $this->group = $doktypeConfiguration['group'] ?? 'default';
-        $this->itemType = (string)($doktypeConfiguration['itemType'] ?? PageRepository::DOKTYPE_DEFAULT);
         $this->columnsOverrides = $doktypeConfiguration['columnsOverrides'] ?? null;
         $this->showItem = $doktypeConfiguration['showitem'] ?? null;
         $this->additionalShowItem = $doktypeConfiguration['additionalShowItem'] ?? null;
-        $this->allowedTables = $doktypeConfiguration['allowedTables'] ?? '*';
+        $this->allowedRecordTypes = $doktypeConfiguration['allowedRecordTypes'] ?? ['*'];
+
     }
 
     /**
@@ -111,11 +109,6 @@ final class Doktype
         return $this->group;
     }
 
-    public function getItemType(): ?string
-    {
-        return $this->itemType;
-    }
-
     public function getColumnsOverrides(): ?array
     {
         return $this->columnsOverrides;
@@ -131,8 +124,8 @@ final class Doktype
         return $this->additionalShowItem;
     }
 
-    public function getAllowedTables(): ?string
+    public function getAllowedRecordTypes(): array
     {
-        return $this->allowedTables;
+        return $this->allowedRecordTypes;
     }
 }

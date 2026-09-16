@@ -27,6 +27,9 @@ class Doktypes
                 ExtensionManagementUtility::addTcaSelectItemGroup('pages', 'doktype', $d->getGroup(), $groupLabel ?? $d->getGroup());
             }
 
+            $GLOBALS['TCA']['pages']['types'][$d->getValue()] = $GLOBALS['TCA']['pages']['types'][1];
+            $GLOBALS['TCA']['pages']['types'][$d->getValue()]['allowedRecordTypes'] = $d->getAllowedRecordTypes();
+
             ExtensionManagementUtility::addTcaSelectItem(
                 'pages',
                 'doktype',
@@ -54,45 +57,19 @@ class Doktypes
                 $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'][$d->getValue() . '-root'] = $d->getIconIdentifierRoot();
             }
 
-            $showItem = $d->getShowItem() ?? $GLOBALS['TCA']['pages']['types'][(string)$d->getItemType()]['showitem'] ?? '';
+            $showItem = $d->getShowItem() ?? $GLOBALS['TCA']['pages']['types'][$d->getValue()]['showitem'] ?? '';
 
             if (!in_array($d->getAdditionalShowitem(), [null, '', '0'], true)) {
                 $showItem = $showItem . (str_starts_with($d->getAdditionalShowitem(), ',') ? '' : ',') . $d->getAdditionalShowitem();
             }
 
-            $GLOBALS['TCA']['pages']['types'][(string)$d->getValue()]['showitem'] = $showItem;
+            $GLOBALS['TCA']['pages']['types'][$d->getValue()]['showitem'] = $showItem;
 
             if (!in_array($d->getColumnsOverrides(), [null, []], true)) {
-                $GLOBALS['TCA']['pages']['types'][(string)$d->getValue()]['columnsOverrides'] = $d->getColumnsOverrides();
+                $GLOBALS['TCA']['pages']['types'][$d->getValue()]['columnsOverrides'] = $d->getColumnsOverrides();
             }
 
             $GLOBALS['TCA']['pages']['tx_tcahelper_doktypes'][$d->getValue()] = $doktype;
         }
     }
-
-    /**
-     * @throws \Exception
-     */
-    public static function registerDoktypesAfterBootCompleted(): void
-    {
-        $doktypes = $GLOBALS['TCA']['pages']['tx_tcahelper_doktypes'] ?? null;
-        if (!empty($doktypes)) {
-            $dokTypeRegistry = GeneralUtility::makeInstance(PageDoktypeRegistry::class);
-
-            foreach ($doktypes as $doktype) {
-                $d = null;
-                if ($doktype instanceof Doktype || is_array($doktype) && $doktype !== []) {
-                    $d = is_array($doktype) ? new Doktype($doktype) : $doktype;
-                }
-
-                $dokTypeRegistry->add(
-                    $d->getValue(),
-                    [
-                        'allowedTables' => $d->getAllowedTables() ?? '*',
-                    ],
-                );
-            }
-        }
-    }
-
 }
