@@ -35,6 +35,10 @@ final class Doktype
 
     private array $allowedRecordTypes;
 
+    private ?string $description;
+
+    private array $wizardSteps;
+
     /**
      * @param array<string, mixed> $doktypeConfiguration
      *
@@ -57,7 +61,8 @@ final class Doktype
         $this->showItem = $doktypeConfiguration['showitem'] ?? null;
         $this->additionalShowItem = $doktypeConfiguration['additionalShowItem'] ?? null;
         $this->allowedRecordTypes = $doktypeConfiguration['allowedRecordTypes'] ?? ['*'];
-
+        $this->description = $doktypeConfiguration['description'] ?? null;
+        $this->wizardSteps = $doktypeConfiguration['wizardSteps'] ?? [];
     }
 
     /**
@@ -79,9 +84,9 @@ final class Doktype
         return $this->label;
     }
 
-    public function getValue(): int|string|null
+    public function getValue(): string|null
     {
-        return $this->value;
+        return $this->value !== null ? (string)$this->value : null;
     }
 
     public function getIconIdentifier(): ?string
@@ -127,5 +132,15 @@ final class Doktype
     public function getAllowedRecordTypes(): array
     {
         return $this->allowedRecordTypes;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function getWizardSteps(): array
+    {
+        return $this->wizardSteps;
     }
 }

@@ -4,6 +4,7 @@ namespace TRAW\TcaHelper\Configuration;
 
 use TRAW\TcaHelper\Configuration\TCA\Doktype;
 use TYPO3\CMS\Core\DataHandling\PageDoktypeRegistry;
+use TYPO3\CMS\Core\Schema\Struct\SelectItem;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -33,12 +34,14 @@ class Doktypes
             ExtensionManagementUtility::addTcaSelectItem(
                 'pages',
                 'doktype',
-                [
-                    'label' => $d->getLabel(),
-                    'value' => $d->getValue(),
-                    'icon' => $d->getIconIdentifier(),
-                    'group' => $d->getGroup(),
-                ],
+                new SelectItem(
+                    'select',
+                    label: $d->getLabel(),
+                    value: $d->getValue(),
+                    icon: $d->getIconIdentifier(),
+                    group: $d->getGroup(),
+                    description: $d->getDescription()
+                )
             );
 
             if (!in_array($d->getIconIdentifier(), [null, '', '0'], true)) {
@@ -67,6 +70,17 @@ class Doktypes
 
             if (!in_array($d->getColumnsOverrides(), [null, []], true)) {
                 $GLOBALS['TCA']['pages']['types'][$d->getValue()]['columnsOverrides'] = $d->getColumnsOverrides();
+            }
+
+            if ($d->getWizardSteps() !== []) {
+                if (isset($d->getWizardSteps()['setup'])) {
+                    $GLOBALS['TCA']['pages']['types'][$d->getValue()]['wizardSteps'] = $d->getWizardSteps();
+                } else {
+                    $GLOBALS['TCA']['pages']['types'][$d->getValue()]['wizardSteps'] = array_replace_recursive(
+                        $GLOBALS['TCA']['pages']['types'][$d->getValue()]['wizardSteps'],
+                        $d->getWizardSteps()
+                    );
+                }
             }
 
             $GLOBALS['TCA']['pages']['tx_tcahelper_doktypes'][$d->getValue()] = $doktype;
