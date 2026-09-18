@@ -6,11 +6,15 @@ namespace TRAW\TcaHelper\Configuration;
 
 use TRAW\TcaHelper\Configuration\TCA\CType;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Schema\Struct\SelectItem;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CTypes
 {
+    /**
+     * @throws \Exception
+     */
     public static function register(array|CType $cType, ?string $selectItemGroupLabel = null): void
     {
         if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
@@ -22,20 +26,20 @@ class CTypes
         self::validateCType($cType);
         self::registerSelectItem($cType, $selectItemGroupLabel);
         self::registerTcaTypeConfiguration($cType);
-        self::registerIconIfAvailable($cType);
-        self::registerCreationOptionsIfSupported($cType);
-
-        self::storeCTypeForLaterUse($cType);
     }
 
     /**
      * alias
+     * @throws \Exception
      */
     public static function registerCType(array|CType $cType, ?string $selectItemGroupLabel = null): void
     {
         self::register($cType, $selectItemGroupLabel);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function registerMultiple(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
         foreach ($cTypes as $cType) {
@@ -45,10 +49,11 @@ class CTypes
 
     /**
      * alias
+     * @throws \Exception
      */
     public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
-        foreach($cTypes as $cType) {
+        foreach ($cTypes as $cType) {
             self::register($cType, $selectItemGroupLabel);
         }
     }
@@ -58,10 +63,6 @@ class CTypes
         self::validateCType($cType, true);
         self::updateSelectItem($cType, $selectItemGroupLabel);
         self::registerTcaTypeConfiguration($cType);
-        self::registerIconIfAvailable($cType);
-        self::registerCreationOptionsIfSupported($cType);
-
-        self::storeCTypeForLaterUse($cType);
     }
 
     /**
@@ -113,7 +114,8 @@ class CTypes
                     ->setColumnsOverrides($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['columnsOverrides'] ?? null)
                     ->setPreviewRenderer($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['previewRenderer'] ?? null)
                     ->setDefaultValues($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['defaultValues'] ?? null)
-                    ->setSaveAndClose((bool)($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['saveAndClose'] ?? false));
+                    ->setSaveAndClose((bool)($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['saveAndClose'] ?? false))
+                    ->setWizardLabel($GLOBALS['TCA']['tt_content']['types'][$cTypeValue]['creationOptions']['title'] ?? '');
                 return $cType;
             }
         }
@@ -151,13 +153,14 @@ class CTypes
         ExtensionManagementUtility::addTcaSelectItem(
             'tt_content',
             'CType',
-            [
-                'label' => $cType->getLabel(),
-                'description' => $cType->getDescription(),
-                'value' => $cType->getValue(),
-                'icon' => $cType->getIconIdentifier(),
-                'group' => $cType->getGroup(),
-            ],
+            new SelectItem(
+                type: 'select',
+                label: $cType->getLabel(),
+                value: $cType->getValue(),
+                icon: $cType->getIconIdentifier(),
+                group: $cType->getGroup(),
+                description: $cType->getDescription(),
+            ),
             $cType->getRelativeToField(),
             $cType->getRelativePosition()
         );
@@ -168,33 +171,38 @@ class CTypes
         if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$cType->getGroup()])) {
             ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $cType->getGroup(), $groupLabel ?? $cType->getGroup());
         }
-
-        $found = false;
-        foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $key => $item) {
-            if (($item['value'] ?? null) === $cType->getValue()) {
-                $found = true;
-                $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][$key] = [
-                    'label' => $cType->getLabel(),
-                    'description' => $cType->getDescription(),
-                    'value' => $cType->getValue(),
-                    'icon' => $cType->getIconIdentifier(),
-                    'group' => $cType->getGroup(),
-                ];
+        $allCTypes = array_column($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'], 'value');
+        if (in_array($cType->getValue(), $allCTypes)) {
+            foreach ($allCTypes as $item) {
+                if ($item === $cType->getValue()) {
+                    $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][$key] = new SelectItem(
+                        type: 'select',
+                        label: $cType->getLabel(),
+                        value: $cType->getValue(),
+                        icon: $cType->getIconIdentifier(),
+                        group: $cType->getGroup(),
+                        description: $cType->getDescription(),
+                    );
+                }
             }
+            return;
         }
 
-        if (!$found) {
-            throw new \InvalidArgumentException(
-                'CType [' . $cType->getValue() . '] cannot be updated because it does not exist',
-                9021369367
-            );
-        }
+        throw new \InvalidArgumentException(
+            'CType [' . $cType->getValue() . '] cannot be updated because it does not exist',
+            9021369367
+        );
     }
 
     private static function registerTcaTypeConfiguration(CType $cType): void
     {
         $value = $cType->getValue();
         $typeConfig = [];
+
+        $icon = $cType->getIconIdentifier();
+        if ($icon) {
+            $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$cType->getValue()] = $icon;
+        }
 
         if ($showItem = $cType->getShowItem()) {
             $typeConfig['showitem'] = $showItem;
@@ -205,20 +213,28 @@ class CTypes
         }
 
         if ($flexform = $cType->getFlexform()) {
-            if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() > 13) {
-                $typeConfig['columnsOverrides'] ??= [];
-                $typeConfig['columnsOverrides']['pi_flexform'] = [
-                    'config' => [
-                        'ds' => $flexform,
-                    ],
-                ];
-            } else {
-                ExtensionManagementUtility::addPiFlexFormValue('', $flexform, $cType->getValue());
-            }
+            $typeConfig['columnsOverrides'] ??= [];
+            $typeConfig['columnsOverrides']['pi_flexform'] = [
+                'config' => [
+                    'ds' => $flexform,
+                ],
+            ];
         }
 
         if ($previewRenderer = $cType->getPreviewRenderer()) {
             $typeConfig['previewRenderer'] = $previewRenderer;
+        }
+
+        if ($cType->getSaveAndClose()) {
+            $typeConfig['creationOptions']['saveAndClose'] = true;
+        }
+
+        if (!empty($cType->getDefaultValues())) {
+            $typeConfig['creationOptions']['defaultValues'] = $cType->getDefaultValues();
+        }
+
+        if ($cType->getWizardLabel() !== $cType->getLabel()) {
+            $typeConfig['creationOptions']['title'] = $cType->getWizardLabel();
         }
 
         if ($typeConfig !== []) {
@@ -226,32 +242,6 @@ class CTypes
                 $GLOBALS['TCA']['tt_content']['types'][$value] ?? [],
                 $typeConfig
             );
-        }
-    }
-
-    private static function registerIconIfAvailable(CType $cType): void
-    {
-        $icon = $cType->getIconIdentifier();
-        if ($icon) {
-            $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$cType->getValue()] = $icon;
-        }
-    }
-
-    private static function registerCreationOptionsIfSupported(CType $cType): void
-    {
-        if ($cType->getSaveAndClose()) {
-            $GLOBALS['TCA']['tt_content']['types'][$cType->getValue()]['creationOptions']['saveAndClose'] = true;
-        }
-
-        if (!empty($cType->getDefaultValues())) {
-            $GLOBALS['TCA']['tt_content']['types'][$cType->getValue()]['creationOptions']['defaultValues'] = $cType->getDefaultValues();
-        }
-    }
-
-    private static function storeCTypeForLaterUse(CType $cType): void
-    {
-        if (!isset($GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'])) {
-            $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'] = [];
         }
 
         $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'][$cType->getValue()] = $cType->__toArray();

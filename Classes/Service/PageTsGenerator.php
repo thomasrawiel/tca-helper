@@ -19,146 +19,31 @@ final class PageTsGenerator
      *
      * @return string PageTS configuration string
      */
-    public static function generate(array $cTypes = []): string
+    public static function generate(): string
     {
-        $wizardItems = [];
-        $removeItems = [];
-        $headers = [];
+        $cTypes = $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'] ?? [];
 
-        if ($cTypes === []) {
-            $cTypes = $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'] ?? [];
-        }
+        $removeItems = array_values(array_map(
+            static fn(array $item): array => array_intersect_key(
+                $item,
+                ['value' => true, 'group' => true]
+            ),
+            array_filter(
+                $cTypes,
+                static fn(array $item): bool => !$item['registerInNewContentElementWizard']
+            )
+        ));;
 
-        foreach ($cTypes as $cType) {
-            if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
-                if (is_array($cType)) {
-                    $cType = new CType($cType);
-                }
-            } else {
-                throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
-            }
+        $tsLines = [];
 
-            $value = $cType->getValue();
-            $group = $cType->getGroup() ?? 'common';
-            $register = $cType->getRegisterInNewContentElementWizard();
-
-            if ($register === false) {
-                $removeItems[$group][] = $value;
-                continue;
-            }
-
-            // Set group header once
-            if (!isset($headers[$group])) {
-                if (isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$group])) {
-                    $headers[$group] = $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$group];
-                } else {
-                    $headers[$group] = $group; // Fallback: use group key as label
-                }
-            }
-
-            if($cType->getRegisterInNewContentElementWizard() && $cType->getLabel() !== $cType->getWizardLabel()) {
-                $wizardItems[$group][] = self::renderWizardConfig(
-                    $cType->getValue(),
-                    $cType->getWizardLabel(),
-                    $cType->getDescription(),
-                    $cType->getIconIdentifier(),
-                    $cType->getDefaultValues(),
-                );
-            }
-        }
-
-        return self::renderPageTs($wizardItems, $removeItems, $headers);
-    }
-
-    /**
-     * Renders configuration for a single wizard element.
-     */
-    private static function renderWizardConfig(
-        string $value,
-        string $label,
-        string $description,
-        string $iconIdentifier,
-        array $defaultValues = [],
-    ): string {
-
-        $defValueLines = 'CType = ' . $value;
-        foreach ($defaultValues as $key => $val) {
-            $defValueLines .= LF . sprintf('            %s = %s', $key, $val) . LF;
-        }
-
-        $defValueLines = rtrim($defValueLines, LF);
-
-        return <<<TS
-            {$value} {
-                iconIdentifier = {$iconIdentifier}
-                title = {$label}
-                description = {$description}
-                tt_content_defValues {
-                    {$defValueLines}
-                }
-            }
-        TS;
-    }
-
-    /**
-     * Combines all TS fragments into a complete PageTS output.
-     *
-     * @param array<string, array<string, string>> $wizardItems
-     * @param array<string, array<string>>         $removeItems
-     * @param array<string, string>                $headers
-     */
-    private static function renderPageTs(
-        array $wizardItems,
-        array $removeItems,
-        array $headers
-    ): string {
-        if ($wizardItems === [] && $removeItems === []) {
-            return '';
-        }
-
-        $tsLines = $wizardItems === [] ? [] : ['mod.wizards.newContentElement.wizardItems {'];
-
-        foreach ($wizardItems as $group => $elements) {
-            $tsLines[] = sprintf('  %s {', $group);
-
-            if (isset($headers[$group])) {
-                $tsLines[] = '    header = ' . $headers[$group];
-            }
-
-            $tsLines[] = '    elements {';
-            foreach ($elements as $elementConfig) {
-                $tsLines[] = self::indentBlock($elementConfig, 6);
-            }
-
-            $tsLines[] = '    }';
-            $tsLines[] = sprintf('    show := addToList(%s)', implode(',', array_keys($elements)));
-            $tsLines[] = '  }';
-        }
-
-        if ($wizardItems !== []) {
-            $tsLines[] = '}';
-        }
-
-        foreach ($removeItems as $group => $values) {
+        foreach ($removeItems as $item) {
             $tsLines[] = sprintf(
                 'mod.wizards.newContentElement.wizardItems.%s.removeItems := addToList(%s)',
-                $group,
-                implode(',', $values)
+                $item['group'],
+                $item['value']
             );
         }
 
         return implode(PHP_EOL, $tsLines) . PHP_EOL;
-    }
-
-    /**
-     * Indents a multiline string block.
-     */
-    private static function indentBlock(string $block, int $spaces): string
-    {
-        $prefix = str_repeat(' ', $spaces);
-        return implode(PHP_EOL, array_map(
-            static fn(string $line): string => $prefix . $line,
-            explode(PHP_EOL, $block)
-        ));
     }
 }
