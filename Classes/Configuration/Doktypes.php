@@ -3,10 +3,8 @@
 namespace TRAW\TcaHelper\Configuration;
 
 use TRAW\TcaHelper\Configuration\TCA\Doktype;
-use TYPO3\CMS\Core\DataHandling\PageDoktypeRegistry;
 use TYPO3\CMS\Core\Schema\Struct\SelectItem;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Doktypes
 {
@@ -19,9 +17,12 @@ class Doktypes
     public static function registerDoktypes(array $doktypes, ?string $groupLabel = null): void
     {
         foreach ($doktypes as $doktype) {
-            $d = null;
-            if ($doktype instanceof Doktype || is_array($doktype) && $doktype !== []) {
-                $d = is_array($doktype) ? new Doktype($doktype) : $doktype;
+            $d = $doktype instanceof Doktype
+                ? $doktype
+                : ($doktype !== [] ? new Doktype($doktype) : null);
+
+            if($d === null) {
+                throw new \Exception('doktype must be an instance of ' . Doktype::class . ' or non empty array', 9552057115);
             }
 
             if (!isset($GLOBALS['TCA']['pages']['columns']['doktype']['config']['itemGroups'][$d->getGroup()])) {

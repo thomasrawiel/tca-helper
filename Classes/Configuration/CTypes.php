@@ -5,46 +5,36 @@ declare(strict_types=1);
 namespace TRAW\TcaHelper\Configuration;
 
 use TRAW\TcaHelper\Configuration\TCA\CType;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Schema\Struct\SelectItem;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CTypes
 {
     /**
      * @throws \Exception
      */
-    public static function register(array|CType $cType, ?string $selectItemGroupLabel = null): void
+    public static function registerCType(array|CType $cType, ?string $selectItemGroupLabel = null): void
     {
-        if (($cType instanceof CType || is_array($cType)) && !empty($cType)) {
-            $cType = is_array($cType) ? new CType($cType) : $cType;
-        } else {
-            throw new \Exception('CType must be an instance of ' . CType::class . ' or array', 9552057115);
+        $cType = $cType instanceof CType
+            ? $cType
+            : ($cType !== [] ? new CType($cType) : null);
+
+        if($cType === null) {
+            throw new \Exception('CType must be an instance of ' . CType::class . ' or non empty array', 9552057115);
         }
 
         self::validateCType($cType);
-        self::registerSelectItem($cType, $selectItemGroupLabel);
+        self::registerSelectItemGroup($cType->getGroup(), $selectItemGroupLabel);
         self::registerTcaTypeConfiguration($cType);
     }
 
     /**
-     * alias
      * @throws \Exception
+     * @deprecated
      */
-    public static function registerCType(array|CType $cType, ?string $selectItemGroupLabel = null): void
+    public static function register(array|CType $cType, ?string $selectItemGroupLabel = null): void
     {
-        self::register($cType, $selectItemGroupLabel);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public static function registerMultiple(array $cTypes, ?string $selectItemGroupLabel = null): void
-    {
-        foreach ($cTypes as $cType) {
-            self::register($cType, $selectItemGroupLabel);
-        }
+        self::registerCType($cType, $selectItemGroupLabel);
     }
 
     /**
@@ -54,8 +44,17 @@ class CTypes
     public static function registerCTypes(array $cTypes, ?string $selectItemGroupLabel = null): void
     {
         foreach ($cTypes as $cType) {
-            self::register($cType, $selectItemGroupLabel);
+            self::registerCType($cType, $selectItemGroupLabel);
         }
+    }
+
+    /**
+     * @throws \Exception
+     * @deprecated
+     */
+    public static function registerMultiple(array $cTypes, ?string $selectItemGroupLabel = null): void
+    {
+        self::registerCTypes($cTypes, $selectItemGroupLabel);
     }
 
     public static function update(CType $cType, ?string $selectItemGroupLabel = null): void
@@ -131,51 +130,38 @@ class CTypes
         }
 
         if (trim($cType->getLabel()) === '') {
-            throw new \InvalidArgumentException('CType label must not be empty', 9021369363);
+            throw new \InvalidArgumentException('CType [' . $cType->getValue() . ']: label must not be empty', 9021369363);
         }
 
         $allCTypes = array_column($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'], 'value');
         if (!$update && in_array(trim($cType->getValue()), $allCTypes)) {
-            throw new \InvalidArgumentException('CType [' . $cType->getValue() . '] already exists', 9021369367);
+            throw new \InvalidArgumentException('CType [' . $cType->getValue() . ']: already exists', 9021369367);
         }
 
         if ($update && !in_array(trim($cType->getValue()), $allCTypes)) {
-            throw new \InvalidArgumentException('CType [' . $cType->getValue() . '] does not exist', 9021369367);
+            throw new \InvalidArgumentException('CType [' . $cType->getValue() . ']: does not exist', 9021369367);
+        }
+
+        if ($cType->getDefaultValues() !== null && !is_array($cType->getDefaultValues())) {
+            throw new \InvalidArgumentException('CType [' . $cType->getValue() . ']: default values must be an array', 9021369369);
         }
     }
 
-    private static function registerSelectItem(CType $cType, ?string $groupLabel): void
+    private static function registerSelectItemGroup(string $group, ?string $groupLabel): void
     {
-        if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$cType->getGroup()])) {
-            ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $cType->getGroup(), $groupLabel ?? $cType->getGroup());
+        if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$group])) {
+            ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $group, $groupLabel ?? $group);
         }
-
-        ExtensionManagementUtility::addTcaSelectItem(
-            'tt_content',
-            'CType',
-            new SelectItem(
-                type: 'select',
-                label: $cType->getLabel(),
-                value: $cType->getValue(),
-                icon: $cType->getIconIdentifier(),
-                group: $cType->getGroup(),
-                description: $cType->getDescription(),
-            ),
-            $cType->getRelativeToField(),
-            $cType->getRelativePosition()
-        );
     }
 
     private static function updateSelectItem(CType $cType, ?string $groupLabel): void
     {
-        if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$cType->getGroup()])) {
-            ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $cType->getGroup(), $groupLabel ?? $cType->getGroup());
-        }
+        self::registerSelectItemGroup($cType->getGroup(), $groupLabel);
         $allCTypes = array_column($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'], 'value');
         if (in_array($cType->getValue(), $allCTypes)) {
             foreach ($allCTypes as $item) {
                 if ($item === $cType->getValue()) {
-                    $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][$key] = new SelectItem(
+                    $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][$item] = new SelectItem(
                         type: 'select',
                         label: $cType->getLabel(),
                         value: $cType->getValue(),
@@ -196,16 +182,10 @@ class CTypes
 
     private static function registerTcaTypeConfiguration(CType $cType): void
     {
-        $value = $cType->getValue();
         $typeConfig = [];
 
-        $icon = $cType->getIconIdentifier();
-        if ($icon) {
-            $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$cType->getValue()] = $icon;
-        }
-
-        if ($showItem = $cType->getShowItem()) {
-            $typeConfig['showitem'] = $showItem;
+        if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['itemGroups'][$cType->getGroup()])) {
+            ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', $cType->getGroup(), $groupLabel ?? $cType->getGroup());
         }
 
         if ($columnsOverrides = $cType->getColumnsOverrides()) {
@@ -237,12 +217,19 @@ class CTypes
             $typeConfig['creationOptions']['title'] = $cType->getWizardLabel();
         }
 
-        if ($typeConfig !== []) {
-            $GLOBALS['TCA']['tt_content']['types'][$value] = array_replace_recursive(
-                $GLOBALS['TCA']['tt_content']['types'][$value] ?? [],
-                $typeConfig
-            );
-        }
+        ExtensionManagementUtility::addRecordType(
+            new SelectItem(
+                type: 'select',
+                label: $cType->getLabel(),
+                value: $cType->getValue(),
+                icon: $cType->getIconIdentifier(),
+                group: $cType->getGroup(),
+                description: $cType->getDescription(),
+            ),
+            $cType->getShowitem(),
+            $typeConfig,
+            $cType->getRelativePosition()
+        );
 
         $GLOBALS['TCA']['tt_content']['tx_tcahelper_ctypes'][$cType->getValue()] = $cType->__toArray();
     }

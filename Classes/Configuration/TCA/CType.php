@@ -29,8 +29,6 @@ final class CType
 
     protected ?array $columnsOverrides;
 
-    protected ?string $relativeToField;
-
     protected ?string $relativePosition;
 
     protected ?string $previewRenderer;
@@ -61,8 +59,7 @@ final class CType
         $this->showitem = $cTypeConfiguration['showitem'] ?? null;
         $this->flexform = $cTypeConfiguration['flexform'] ?? null;
         $this->columnsOverrides = $cTypeConfiguration['columnsOverrides'] ?? null;
-        $this->relativeToField = $cTypeConfiguration['relativeToField'] ?? null;
-        $this->relativePosition = $cTypeConfiguration['relativePosition'] ?? null;
+        $this->relativePosition =  $cTypeConfiguration['position'] ?? $cTypeConfiguration['relativePosition'] ?? null;
         $this->previewRenderer = $cTypeConfiguration['previewRenderer'] ?? null;
         $this->registerInNewContentElementWizard = (bool)($cTypeConfiguration['registerInNewContentElementWizard'] ?? true);
         $this->defaultValues = $cTypeConfiguration['defaultValues'] ?? null;
@@ -124,11 +121,6 @@ final class CType
         return $this->columnsOverrides;
     }
 
-    public function getRelativeToField(): string
-    {
-        return $this->relativeToField ?? '';
-    }
-
     public function getRelativePosition(): string
     {
         return $this->relativePosition ?? '';
@@ -166,7 +158,6 @@ final class CType
             'showitem' => $this->showitem,
             'flexform' => $this->flexform,
             'columnsOverrides' => $this->columnsOverrides,
-            'relativeToField' => $this->relativeToField,
             'relativePosition' => $this->relativePosition,
             'previewRenderer' => $this->previewRenderer,
             'registerInNewContentElementWizard' => $this->registerInNewContentElementWizard,
