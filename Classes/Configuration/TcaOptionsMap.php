@@ -7,9 +7,11 @@ declare(strict_types=1);
 
 namespace TRAW\TcaHelper\Configuration;
 
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Schema\Struct\SelectItem;
 
+#[Autoconfigure(public: true)]
 class TcaOptionsMap
 {
     /**
@@ -24,7 +26,9 @@ class TcaOptionsMap
 
     protected string $field = '';
 
-    public function __construct(private readonly ConnectionPool $connectionPool) {}
+    public function __construct(protected readonly ConnectionPool $connectionPool)
+    {
+    }
 
     public function addOptions(array &$params): void
     {
@@ -124,7 +128,7 @@ class TcaOptionsMap
         return true;
     }
 
-    private function extractNeedle(mixed $value): mixed
+    protected function extractNeedle(mixed $value): mixed
     {
         return is_array($value) ? ($value[0] ?? null) : $value;
     }
@@ -158,7 +162,7 @@ class TcaOptionsMap
      */
     protected function parentAnythingProperties(array $configuration, string $table, string $parentDetectionField): bool
     {
-        if(!isset($this->properties[$parentDetectionField])) {
+        if (!isset($this->properties[$parentDetectionField])) {
             return false;
         }
 
