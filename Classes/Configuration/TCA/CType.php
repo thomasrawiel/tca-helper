@@ -11,33 +11,33 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class CType
 {
-    protected string $label;
+    private string $label;
 
-    protected string $wizardLabel;
+    private string $wizardLabel;
 
-    protected string $description;
+    private string $description;
 
-    protected string $value;
+    private string $value;
 
-    protected ?string $iconIdentifier;
+    private ?string $iconIdentifier;
 
-    protected ?string $group;
+    private ?string $group;
 
-    protected ?string $showitem;
+    private ?string $showitem;
 
-    protected ?string $flexform;
+    private ?string $flexform;
 
-    protected ?array $columnsOverrides;
+    private ?array $columnsOverrides;
 
-    protected ?string $relativePosition;
+    private ?string $relativePosition;
 
-    protected ?string $previewRenderer;
+    private ?string $previewRenderer;
 
-    protected bool $registerInNewContentElementWizard;
+    private bool $registerInNewContentElementWizard;
 
-    protected ?array $defaultValues;
+    private ?array $defaultValues;
 
-    protected bool $saveAndClose;
+    private bool $saveAndClose;
 
     /**
      * @param array<string, mixed> $cTypeConfiguration
@@ -221,12 +221,7 @@ final class CType
         } else {
             $this->columnsOverrides = array_replace_recursive($this->columnsOverrides, $columnsOverrides);
         }
-        return $this;
-    }
 
-    public function setRelativeToField(?string $relativeToField): self
-    {
-        $this->relativeToField = $relativeToField;
         return $this;
     }
 
@@ -255,6 +250,7 @@ final class CType
         } else {
             $this->defaultValues = array_replace_recursive($this->defaultValues, $defaultValues);
         }
+
         return $this;
     }
 

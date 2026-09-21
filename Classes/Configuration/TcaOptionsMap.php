@@ -51,6 +51,7 @@ class TcaOptionsMap
                     ?? '';
             }
         }
+
         /**
          * $params Reference to TCA field configuration array (expects ['items'] to be passed by reference)
          */
@@ -183,14 +184,7 @@ class TcaOptionsMap
         if (empty($result) || $result === false) {
             return false;
         }
-
-        foreach ($configuration as $property => $values) {
-            if (array_key_exists($property, $result) === false || in_array($result[$property], $values) === false) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($configuration, fn($values, $property): bool => array_key_exists($property, $result) && in_array($result[$property], $values));
     }
 
     public static function addToOptionMap(string $table, string $field, array $options): void
@@ -200,7 +194,7 @@ class TcaOptionsMap
 
         // If another itemsProcFunc is already set, abort
         if ($currentFunc !== null && $currentFunc !== $targetFunc) {
-            throw new \Exception("Can't set option map because $field in $table already has an itemsProcFunc ($currentFunc)");
+            throw new \Exception("Can't set option map because $field in $table already has an itemsProcFunc ($currentFunc)", 6974488708);
         }
 
         if ($currentFunc !== $targetFunc) {

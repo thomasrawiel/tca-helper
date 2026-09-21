@@ -9,6 +9,7 @@
     }
   ],
   "require": {
+    "php": "^8.4",
     "typo3/cms-core": "^14.3"
   },
   "license": "GPL-3.0-or-later",

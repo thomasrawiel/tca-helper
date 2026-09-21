@@ -21,7 +21,7 @@ class Doktypes
                 ? $doktype
                 : ($doktype !== [] ? new Doktype($doktype) : null);
 
-            if($d === null) {
+            if(!$d instanceof Doktype) {
                 throw new \Exception('doktype must be an instance of ' . Doktype::class . ' or non empty array', 9552057115);
             }
 

@@ -11,7 +11,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 /**
  * Represents a custom page doktype configuration.
  */
-final class Doktype
+final readonly class Doktype
 {
     private ?string $label;
 
@@ -70,7 +70,7 @@ final class Doktype
      */
     private function assertRequiredFields(): void
     {
-        if ($this->label === null || $this->label === '' || $this->label === '0' || ($this->value === 0 || ($this->value === '' || $this->value === '0') || $this->value === null)) {
+        if (in_array($this->label, [null, '', '0'], true) || ($this->value === 0 || ($this->value === '' || $this->value === '0') || $this->value === null)) {
             throw new \RuntimeException('A page type must have at least a label and a value', 5869846286);
         }
 

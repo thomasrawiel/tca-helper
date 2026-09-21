@@ -19,7 +19,7 @@ class CTypes
             ? $cType
             : ($cType !== [] ? new CType($cType) : null);
 
-        if($cType === null) {
+        if(!$cType instanceof CType) {
             throw new \Exception('CType must be an instance of ' . CType::class . ' or non empty array', 9552057115);
         }
 
@@ -89,7 +89,7 @@ class CTypes
 
         $cType = self::fetchCTypeData($cTypeValue);
 
-        if ($cType === null) {
+        if (!$cType instanceof CType) {
             throw new \InvalidArgumentException(
                 'CType [' . $cTypeValue . '] does not exist',
                 9021369368
@@ -101,7 +101,7 @@ class CTypes
 
     private static function fetchCTypeData(string $cTypeValue): ?CType
     {
-        foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $key => $item) {
+        foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $item) {
             if (($item['value'] ?? null) === $cTypeValue) {
                 $cType = new CType($item);
                 $cType->setFlexform(
@@ -171,6 +171,7 @@ class CTypes
                     );
                 }
             }
+
             return;
         }
 
